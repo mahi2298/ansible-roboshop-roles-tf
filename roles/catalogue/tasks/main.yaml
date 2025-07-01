@@ -39,9 +39,9 @@
   ignore_errors: true
 
 
-- name: Deployment
-  tags:
-  - deployment
-  import_role: # it is applicable only to this specific statement
-    name: common
-    tasks_from: deployment
+# - name: Deployment
+#   tags:
+#   - deployment
+#   import_role: # it is applicable only to this specific statement
+#     name: common
+#     tasks_from: deployment
