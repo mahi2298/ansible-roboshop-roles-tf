@@ -1,0 +1,47 @@
+- name: app-setup
+  include_role:
+    name: common 
+    tasks_from: app-setup
+
+- name: nodejs
+  include_role:
+    name: common 
+    tasks_from: nodejs
+
+- name: systemd set-up
+  include_role:
+    name: common
+    tasks_from: systemd
+
+- name: copying the mongodb repo
+  ansible.builtin.copy:
+    src: mongo.repo
+    dest: /etc/yum.repos.d/mongo.repo
+
+- name: install the mongodb client
+  ansible.builtin.dnf:
+    name: mongodb-mongosh
+    state: present
+
+- name: check products loaded or not
+  ansible.builtin.command: mongosh --host mongodb.pavithra.fun --eval 'db.getMongo().getDBNames().indexOf("catalogue")'
+  register: catalogue_output
+  ignore_errors: true
+
+- name: print catalogue output 
+  ansible.builtin.debug:
+    msg: "{{ catalogue_output }}"
+  ignore_errors: true
+
+- name: load products 
+  ansible.builtin.shell: mongosh --host mongodb.pavithra.fun < /app/db/master-data.js
+  when: catalogue_output.stdout | int < 0
+  ignore_errors: true
+
+
+- name: Deployment
+  tags:
+  - deployment
+  import_role: # it is applicable only to this specific statement
+    name: common
+    tasks_from: deployment
